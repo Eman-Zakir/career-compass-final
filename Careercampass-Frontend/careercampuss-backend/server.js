@@ -7,7 +7,6 @@ const helmet = require('helmet');
 const { apiLimiter } = require('./middlewares/securityMiddleware');
 
 const authRoutes = require('./routes/authRoutes');
-const internshipRoutes = require('./routes/internshipRoutes');
 
 // --- INITIALIZE APP HERE ---
 const app = express(); 
@@ -45,6 +44,9 @@ mongoose.connect(process.env.DB_URI || "mongodb://127.0.0.1:27017/career_compass
 app.get("/", (req, res) => {
     res.send("✅ Career Compass Backend is running!");
 });
+
+// Mount routes
+app.use('/api/auth', authRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
