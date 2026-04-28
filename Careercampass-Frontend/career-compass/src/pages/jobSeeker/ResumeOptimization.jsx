@@ -1,57 +1,68 @@
 import React, { useState } from 'react';
-// Aapke hisab se imports rahenge
+import './ResumeOptimization.css'; // CSS file ho to rakhein, nahi to hata dein
 
 const ResumeOptimization = () => {
   const [file, setFile] = useState(null);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
   };
 
   const handleOptimize = async () => {
     if (!file) {
-      alert("Please upload a resume first!");
+      alert("Please select a PDF resume first!");
       return;
     }
 
+    setLoading(true);
+    setResult(null);
+
+    // Note: File upload ke liye Backend me 'multer' library ka use karna padega
+    // Abhi ke liye hum ek dummy request bhej rahe hain connection check karne ke liye
     const formData = new FormData();
     formData.append("resume", file);
 
     try {
-      // Ye link backend wala hai (Ye baad me bataunga kaise set karna)
-      const response = await fetch('http://localhost:5000/api/resume/optimize', {
+      const response = await fetch('http://localhost:5000/api/jobseeker/optimize', {
         method: 'POST',
         body: formData,
       });
 
       const data = await response.json();
       if (data.success) {
-        setMessage("Resume Optimization Complete! Score: " + data.score);
+        setResult(data);
       } else {
-        setMessage("Error: " + data.message);
+        alert("Error: " + data.message);
       }
     } catch (error) {
       console.error("Error:", error);
-      setMessage("Server connection failed.");
+      alert("Server connection failed. Make sure Backend is running on port 5000.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="resume-container">
+    <div className="resume-optimization-container" style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
       <h2>Resume Optimization</h2>
-      <p>Upload your PDF resume to get suggestions.</p>
-      
-      {/* File Input */}
-      <input type="file" onChange={handleFileChange} accept="application/pdf" />
-      
-      {/* Optimize Button */}
-      <button onClick={handleOptimize}>Optimize Resume</button>
-      
-      {/* Result Message */}
-      {message && <p className="result">{message}</p>}
-    </div>
-  );
-};
+      <p>Upload your resume to get AI-based suggestions.</p>
 
-export default ResumeOptimization;
+      <div style={{ margin: '20px 0' }}>
+        <input 
+          type="file" 
+          onChange={handleFileChange} 
+          accept="application/pdf" 
+          style={{ marginBottom: '10px' }}
+        />
+      </div>
+
+      <button 
+        onClick={handleOptimize} 
+        disabled={loading}
+        style={{ 
+          padding: '10px 20px', 
+          backgroundColor: loading ? '#ccc' : '#007bff',
