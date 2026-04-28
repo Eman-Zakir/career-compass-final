@@ -1,97 +1,101 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Target, XCircle, CheckCircle, ExternalLink, BookOpen } from 'lucide-react';
+import React, { useState } from 'react';
+import './SkillGapIdentification.css'; // CSS file ho to rakhein
 
 const SkillGapIdentification = () => {
-  const [openedSkill, setOpenedSkill] = useState(null);
+  const [userSkills, setUserSkills] = useState('');
+  const [requiredSkills, setRequiredSkills] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [analysis, setAnalysis] = useState(null);
 
-  const handleOpenCourse = (skill) => {
-    setOpenedSkill(skill);
-    // Fake open new tab alert
-    // window.open('https://www.udemy.com', '_blank'); 
+  const handleAnalyze = async () => {
+    if (!userSkills || !requiredSkills) {
+      alert("Please fill both fields!");
+      return;
+    }
+
+    setLoading(true);
+    setAnalysis(null);
+
+    try {
+      // Backend ko JSON data bhej rahe hain
+      const response = await fetch('http://localhost:5000/api/jobseeker/analyze-skill-gap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userSkills: userSkills.split(',').map(s => s.trim()), // "a, b" -> ["a", "b"]
+          requiredSkills: requiredSkills.split(',').map(s => s.trim()),
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setAnalysis(data);
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Server connection failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-10 font-sans">
-      <div className="max-w-6xl mx-auto">
-        
-        <div className="mb-8 md:mb-12">
-          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-            <Target className="text-purple-500" /> Skill Gap Analysis
-          </h1>
-          <p className="text-gray-400 mt-2 text-sm md:text-base">Target Role: <span className="text-white font-bold">Frontend Developer</span></p>
-        </div>
+    <div className="skill-gap-container" style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
+      <h2>Skill Gap Analysis</h2>
+      <p>Enter your skills and the skills required for a job to find gaps.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-          
-          {/* Missing Skills */}
-          <motion.div 
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="bg-gray-900 rounded-3xl p-6 md:p-8 border border-gray-800"
-          >
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-red-400">
-              <XCircle size={24} /> Skills to Acquire
-            </h2>
-
-            <div className="space-y-4">
-              {['TypeScript', 'GraphQL', 'Next.js'].map((skill, i) => (
-                <div key={skill} className="p-5 bg-black/40 rounded-2xl border border-red-500/10 hover:border-red-500/40 transition group">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-white">{skill}</h3>
-                      <p className="text-xs text-gray-500 mt-1">Required for Senior Roles</p>
-                    </div>
-                    <span className="px-2 py-1 bg-red-500/10 text-red-400 text-[10px] uppercase font-bold rounded">Priority</span>
-                  </div>
-                  
-                  <button 
-                    onClick={() => handleOpenCourse(skill)}
-                    className="mt-4 w-full py-2 bg-red-500/10 text-red-400 rounded-lg text-sm font-bold border border-red-500/20 group-hover:bg-red-600 group-hover:text-white transition flex items-center justify-center gap-2"
-                  >
-                    {openedSkill === skill ? <><BookOpen size={14}/> Course Opened</> : <><ExternalLink size={14}/> Find Courses</>}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Acquired Skills */}
-          <motion.div 
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="bg-gray-900 rounded-3xl p-6 md:p-8 border border-gray-800 flex flex-col"
-          >
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-green-400">
-              <CheckCircle size={24} /> Skills You Have
-            </h2>
-
-            <div className="space-y-3 flex-1">
-              {['React.js (Advanced)', 'Tailwind CSS', 'Git / GitHub', 'JavaScript (ES6+)'].map((skill) => (
-                <div key={skill} className="flex items-center gap-3 p-4 bg-black/40 rounded-xl border border-green-500/10">
-                  <CheckCircle className="text-green-500 shrink-0" size={18} />
-                  <span className="font-medium text-gray-300 text-sm">{skill}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 p-6 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl text-center shadow-lg shadow-green-900/50">
-              <h3 className="text-3xl font-extrabold">85% Match</h3>
-              <p className="text-green-100 text-sm mt-1 mb-3">You are almost ready!</p>
-              {/* Progress Bar */}
-              <div className="w-full bg-black/20 h-2 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }} 
-                  animate={{ width: '85%' }} 
-                  transition={{ duration: 1.5 }}
-                  className="h-full bg-white" 
-                />
-              </div>
-            </div>
-          </motion.div>
-
-        </div>
+      <div style={{ marginBottom: '15px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+          Your Skills (comma separated):
+        </label>
+        <input
+          type="text"
+          value={userSkills}
+          onChange={(e) => setUserSkills(e.target.value)}
+          placeholder="e.g., Python, React, HTML"
+          style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+        />
       </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+          Required Skills (comma separated):
+        </label>
+        <input
+          type="text"
+          value={requiredSkills}
+          onChange={(e) => setRequiredSkills(e.target.value)}
+          placeholder="e.g., Python, React, Node.js, SQL"
+          style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+        />
+      </div>
+
+      <button
+        onClick={handleAnalyze}
+        disabled={loading}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: loading ? '#ccc' : '#28a745',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer'
+        }}
+      >
+        {loading ? "Analyzing..." : "Analyze Gap"}
+      </button>
+
+      {analysis && (
+        <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: '#f0f8ff' }}>
+          <h3>Analysis Result:</h3>
+          <p><strong>Missing Skills:</strong> {analysis.missingSkills.join(', ') || "None"}</p>
+          <p><strong>Advice:</strong> {analysis.advice}</p>
+        </div>
+      )}
     </div>
   );
 };
