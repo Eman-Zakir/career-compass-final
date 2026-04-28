@@ -290,26 +290,6 @@ const CareerRecommendation = () => {
             })}
           </div>
 
-          {internships.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-              className="bg-gray-900 rounded-3xl p-8 border border-gray-800 mb-8">
-              <h2 className="text-2xl font-bold mb-2">🏢 Internship Opportunities in Pakistan</h2>
-              <p className="text-gray-500 text-sm mb-6">Recommended for <span className="text-white">{result.recommended_career}</span></p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {internships.map((intern, i) => (
-                  <a key={i} href={intern.link} target="_blank" rel="noreferrer"
-                    className="flex items-center justify-between bg-gray-800 hover:bg-gray-700 rounded-xl p-4 border border-gray-700 hover:border-purple-500/50 transition-all group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">🏢</div>
-                      <div><p className="font-semibold text-white text-sm">{intern.company}</p><p className="text-gray-500 text-xs">Click to apply</p></div>
-                    </div>
-                    <span className="text-purple-400 text-sm font-medium group-hover:translate-x-1 transition-transform">→</span>
-                  </a>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
           <div className="text-center">
             <button onClick={handleReset}
               className="inline-flex items-center gap-2 px-8 py-3 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-2xl font-semibold transition-all text-gray-300">
@@ -319,30 +299,142 @@ const CareerRecommendation = () => {
         </div>
 
         <AnimatePresence>
-          {selectedCareer && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                className="bg-gray-900 w-full max-w-md rounded-3xl border border-gray-700 p-8 relative shadow-2xl">
-                <button onClick={() => setSelected(null)} className="absolute top-4 right-4 p-2 bg-black rounded-full hover:bg-gray-800 text-gray-400 transition"><X size={20} /></button>
-                <div className="text-5xl mb-4">{careerIcons[selectedCareer.career] || '🎯'}</div>
-                <h2 className="text-2xl font-bold text-white mb-1">{selectedCareer.career}</h2>
-                <p className="text-purple-400 font-bold mb-6">{selectedCareer.confidence}% Match</p>
-                <h3 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">6-Month Roadmap</h3>
-                <div className="space-y-3 mb-8">
-                  {[['Month 1–2','Learn core skills & tools for this field'],['Month 3–4','Build 2–3 portfolio projects'],['Month 5','Apply for internships in Pakistan'],['Month 6','Prepare resume & start interviews']].map(([time, task]) => (
-                    <div key={time} className="flex items-start gap-4 p-4 bg-black/40 rounded-xl border border-gray-800">
-                      <CheckCircle className="text-green-500 shrink-0 mt-0.5" size={18} />
-                      <div><h4 className="font-bold text-sm text-white">{time}</h4><p className="text-xs text-gray-500">{task}</p></div>
+          {selectedCareer && (() => {
+            const roadmaps = {
+              'Software Engineer': [
+                { month: 'Month 1', task: 'Learn HTML, CSS & JavaScript basics', tools: 'freeCodeCamp, W3Schools' },
+                { month: 'Month 2', task: 'Learn React.js + Git & GitHub',        tools: 'React Docs, GitHub' },
+                { month: 'Month 3', task: 'Learn Node.js + Express + MongoDB',    tools: 'MongoDB Atlas, Postman' },
+                { month: 'Month 4', task: 'Build 2 full-stack projects',           tools: 'Netlify, Vercel, Railway' },
+                { month: 'Month 5', task: 'Apply for internships in Pakistan',     tools: 'Rozee.pk, LinkedIn, Rozee' },
+                { month: 'Month 6', task: 'Polish resume, GitHub & interviews',    tools: 'LeetCode, Pramp' },
+              ],
+              'Data Scientist': [
+                { month: 'Month 1', task: 'Learn Python basics + NumPy + Pandas',       tools: 'Kaggle, Google Colab' },
+                { month: 'Month 2', task: 'Statistics, Data Visualization (Matplotlib)', tools: 'Seaborn, Plotly' },
+                { month: 'Month 3', task: 'Machine Learning with Scikit-learn',          tools: 'Scikit-learn, Jupyter' },
+                { month: 'Month 4', task: 'Complete 2 Kaggle competition projects',      tools: 'Kaggle Notebooks' },
+                { month: 'Month 5', task: 'Learn SQL + Power BI / Tableau basics',       tools: 'MySQL, Power BI Free' },
+                { month: 'Month 6', task: 'Apply for data roles & build portfolio',      tools: 'GitHub, LinkedIn' },
+              ],
+              'Doctor/Medical': [
+                { month: 'Month 1', task: 'Strengthen Biology, Chemistry concepts',      tools: 'MDCAT syllabus, Kips Notes' },
+                { month: 'Month 2', task: 'Start MDCAT / USMLE prep seriously',          tools: 'PakMcqs, Kips Academy' },
+                { month: 'Month 3', task: 'Practice 1000+ MCQs daily, timed tests',      tools: 'Entry Test apps, Past papers' },
+                { month: 'Month 4', task: 'Apply to medical colleges (NUMS, MDCAT)',      tools: 'PMC portal, UHS website' },
+                { month: 'Month 5', task: 'Hospital volunteering / shadowing experience', tools: 'Local clinics, THQ hospitals' },
+                { month: 'Month 6', task: 'Final exam prep + admission interviews',       tools: 'Interview prep guides' },
+              ],
+              'Core Engineer': [
+                { month: 'Month 1', task: 'Strengthen Math, Physics fundamentals',        tools: 'Khan Academy, Brilliant.org' },
+                { month: 'Month 2', task: 'Learn Engineering Drawing + AutoCAD basics',   tools: 'AutoCAD free student version' },
+                { month: 'Month 3', task: 'ECAT/NTS preparation — past papers',           tools: 'ECAT prep books, past papers' },
+                { month: 'Month 4', task: 'Apply to NUST, UET, NED, COMSATS',             tools: 'University portals' },
+                { month: 'Month 5', task: 'Learn MATLAB or relevant engineering software',tools: 'MATLAB, SolidWorks trial' },
+                { month: 'Month 6', task: 'Apply for engineering internships',             tools: 'WAPDA, NESCOM, NUST programs' },
+              ],
+              'Business/Management': [
+                { month: 'Month 1', task: 'Learn Business fundamentals + MS Excel',       tools: 'Coursera, Excel tutorials' },
+                { month: 'Month 2', task: 'Study Marketing, HR & Finance basics',         tools: 'HubSpot Academy (free)' },
+                { month: 'Month 3', task: 'Learn Digital Marketing + Google Analytics',   tools: 'Google Digital Garage' },
+                { month: 'Month 4', task: 'Build a mock business plan / case study',      tools: 'Canva, Google Slides' },
+                { month: 'Month 5', task: 'Apply for BBA admissions or internships',      tools: 'IBA, LUMS, LinkedIn' },
+                { month: 'Month 6', task: 'Polish LinkedIn profile & network actively',   tools: 'LinkedIn, Rozee.pk' },
+              ],
+              'Finance/Accounting': [
+                { month: 'Month 1', task: 'Learn Accounting basics + MS Excel advanced',  tools: 'AccountingCoach.com' },
+                { month: 'Month 2', task: 'Study Financial Statements + Bookkeeping',     tools: 'QuickBooks tutorial (free)' },
+                { month: 'Month 3', task: 'Explore CA / ACCA / CMA certification paths',  tools: 'ICAP.org, ACCA global' },
+                { month: 'Month 4', task: 'Complete practice sets + mock exams',           tools: 'Past papers, Kaplan notes' },
+                { month: 'Month 5', task: 'Apply for finance internships in banks/firms',  tools: 'HBL, MCB, KPMG Pakistan' },
+                { month: 'Month 6', task: 'Resume + interview prep for finance roles',     tools: 'LinkedIn, Rozee.pk' },
+              ],
+              'Educator': [
+                { month: 'Month 1', task: 'Choose your subject specialty to teach',        tools: 'Your strongest subject' },
+                { month: 'Month 2', task: 'Learn modern teaching methods + lesson plans',  tools: 'Coursera Teaching courses' },
+                { month: 'Month 3', task: 'Start free online tutoring (Preply, Chegg)',    tools: 'Preply, Chegg Tutors' },
+                { month: 'Month 4', task: 'Create YouTube / social media teaching content',tools: 'YouTube, Canva, OBS Studio' },
+                { month: 'Month 5', task: 'Apply to Beaconhouse, City School, TCF',        tools: 'School career portals' },
+                { month: 'Month 6', task: 'Pursue B.Ed or teaching certification',         tools: 'Allama Iqbal Open University' },
+              ],
+              'Designer': [
+                { month: 'Month 1', task: 'Learn design principles + Canva basics',        tools: 'Canva, Pinterest for inspo' },
+                { month: 'Month 2', task: 'Learn Adobe Illustrator + Photoshop',            tools: 'Adobe Creative Cloud trial' },
+                { month: 'Month 3', task: 'Learn Figma for UI/UX design',                   tools: 'Figma free account' },
+                { month: 'Month 4', task: 'Build a portfolio — 5 real design projects',     tools: 'Behance, Dribbble' },
+                { month: 'Month 5', task: 'Start freelancing on Fiverr / Upwork',           tools: 'Fiverr, Upwork accounts' },
+                { month: 'Month 6', task: 'Apply for design roles or agencies',             tools: 'LinkedIn, Rozee.pk, Behance' },
+              ],
+              'Network Engineer': [
+                { month: 'Month 1', task: 'Learn Networking basics — OSI, TCP/IP, DNS',    tools: 'Cisco NetAcad (free)' },
+                { month: 'Month 2', task: 'Start CCNA certification preparation',           tools: 'Cisco Packet Tracer' },
+                { month: 'Month 3', task: 'Learn Linux fundamentals + Command Line',        tools: 'Linux Journey, Ubuntu' },
+                { month: 'Month 4', task: 'Study Cybersecurity basics + ethical hacking',  tools: 'TryHackMe (free tier)' },
+                { month: 'Month 5', task: 'Get CCNA certified + build home lab',            tools: 'GNS3, Packet Tracer' },
+                { month: 'Month 6', task: 'Apply for network roles at PTCL, Jazz, ISPs',   tools: 'Rozee.pk, LinkedIn' },
+              ],
+            };
+
+            const steps = roadmaps[selectedCareer.career] || [
+              { month: 'Month 1–2', task: 'Learn core skills & tools for this field',  tools: 'Coursera, YouTube' },
+              { month: 'Month 3–4', task: 'Build 2–3 portfolio projects',               tools: 'GitHub, personal website' },
+              { month: 'Month 5',   task: 'Apply for internships in Pakistan',          tools: 'Rozee.pk, LinkedIn' },
+              { month: 'Month 6',   task: 'Prepare resume & start interviews',          tools: 'LinkedIn, career fairs' },
+            ];
+
+            const colors = careerColors[selectedCareer.career] || defaultColor;
+
+            return (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                  className="bg-gray-900 w-full max-w-lg rounded-3xl border border-gray-700 p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+
+                  <button onClick={() => setSelected(null)} className="absolute top-4 right-4 p-2 bg-black rounded-full hover:bg-gray-800 text-gray-400 transition"><X size={20} /></button>
+
+                  {/* Header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className={`text-4xl p-3 rounded-2xl ${colors.bg}`}>{careerIcons[selectedCareer.career] || '🎯'}</div>
+                    <div>
+                      <h2 className={`text-2xl font-bold ${colors.text}`}>{selectedCareer.career}</h2>
+                      <p className="text-gray-400 text-sm">{selectedCareer.confidence}% Match · 6-Month Plan</p>
                     </div>
-                  ))}
-                </div>
-                <button onClick={() => setSelected(null)}
-                  className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold text-white hover:from-purple-500 hover:to-pink-500 transition">
-                  Got it! Let's go 🚀
-                </button>
-              </motion.div>
-            </div>
-          )}
+                  </div>
+
+                  {/* Timeline */}
+                  <h3 className="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider">Your Personalized Roadmap</h3>
+                  <div className="relative">
+                    {/* Vertical line */}
+                    <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-800" />
+
+                    <div className="space-y-4">
+                      {steps.map((step, i) => (
+                        <div key={i} className="flex gap-4 relative">
+                          {/* Circle */}
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10
+                            ${i === 0 ? `${colors.bg} ${colors.text} border-2 border-current` : 'bg-gray-800 text-gray-400 border border-gray-700'}`}>
+                            {i + 1}
+                          </div>
+                          {/* Content */}
+                          <div className="bg-black/40 border border-gray-800 rounded-xl p-4 flex-1 hover:border-gray-600 transition">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className={`text-xs font-bold ${i === 0 ? colors.text : 'text-gray-500'}`}>{step.month}</span>
+                            </div>
+                            <p className="text-white text-sm font-semibold mb-1">{step.task}</p>
+                            <p className="text-gray-500 text-xs">🛠️ {step.tools}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button onClick={() => setSelected(null)}
+                    className={`w-full mt-6 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold text-white hover:from-purple-500 hover:to-pink-500 transition`}>
+                    Got it! Let's go 🚀
+                  </button>
+                </motion.div>
+              </div>
+            );
+          })()}
         </AnimatePresence>
       </div>
     );

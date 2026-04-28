@@ -7,8 +7,10 @@ const helmet = require('helmet');
 const { apiLimiter } = require('./middlewares/securityMiddleware');
 
 const authRoutes = require('./routes/authRoutes');
+const internshipRoutes = require('./routes/internshipRoutes');
 
-const app = express();
+// --- INITIALIZE APP HERE ---
+const app = express(); 
 
 // Security Middlewares
 app.use(helmet());
@@ -18,7 +20,7 @@ app.use(apiLimiter);
 
 // CORS configuration
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],  // ← dono ports
+    origin: ["http://localhost:5173", "http://localhost:5174"], 
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -30,6 +32,10 @@ app.use(express.json());
 // Cookie parser
 app.use(cookieParser());
 
+// Mount routes (Now that app exists, these work!)
+app.use('/api/internships', internshipRoutes);
+app.use('/api/auth', authRoutes);
+
 // MongoDB Connection
 mongoose.connect(process.env.DB_URI || "mongodb://127.0.0.1:27017/career_compass_db")
     .then(() => console.log("✅ MongoDB Connected"))
@@ -39,9 +45,6 @@ mongoose.connect(process.env.DB_URI || "mongodb://127.0.0.1:27017/career_compass
 app.get("/", (req, res) => {
     res.send("✅ Career Compass Backend is running!");
 });
-
-// Mount routes
-app.use('/api/auth', authRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
