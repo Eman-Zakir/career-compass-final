@@ -1,136 +1,187 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FileText, Target, Search, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import './JobSeekerDashboard.css';
 
 const JobSeekerDashboard = () => {
+  const [activeTab, setActiveTab] = useState('resume'); // 'resume' or 'jobs'
   
-  // Animation Variants
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
+  // --- Resume Optimizer State ---
+  const [file, setFile] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [atsScore, setAtsScore] = useState(null);
+  const [analysisResult, setAnalysisResult] = useState(null);
+
+  // --- Job Matching State ---
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Mock Skills (Tumhare dashboard se aayenge)
+  const userSkills = ['React', 'Node.js', 'Python', 'UI/UX'];
+  
+  const mockJobs = [
+    { id: 1, title: 'Senior Frontend Dev', company: 'Google', type: 'Remote', salary: '$120k', match: 95, logo: 'G' },
+    { id: 2, title: 'Backend Engineer', company: 'Microsoft', type: 'On-site', salary: '$110k', match: 88, logo: 'M' },
+    { id: 3, title: 'Full Stack Developer', company: 'Amazon', type: 'Hybrid', salary: '$115k', match: 92, logo: 'A' },
+    { id: 4, title: 'React Developer', company: 'TechStart', type: 'Remote', salary: '$80k', match: 85, logo: 'T' },
+  ];
+
+  // --- Handlers ---
+  const handleResumeUpload = (e) => {
+    if (e.target.files[0]) {
+      setFile(e.target.files[0]);
+      setAtsScore(null);
+      setAnalysisResult(null);
     }
   };
 
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+  const handleAnalyze = () => {
+    if (!file) return alert("Please select a file first!");
+    setIsAnalyzing(true);
+    
+    // Simulate AI Processing Delay
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      setAtsScore(92); // Mock Score
+      setAnalysisResult({
+        keywords: ['Leadership', 'Agile', 'Cloud'],
+        missing: ['Docker', 'Kubernetes'],
+        suggestions: [
+          "Add more quantifiable achievements (e.g., 'Increased speed by 20%').",
+          "Optimize the summary section with industry-specific keywords."
+        ]
+      });
+    }, 3000); // 3 seconds delay
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-10 font-sans pb-20">
-      <div className="max-w-5xl mx-auto">
-        
-        {/* Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20">
-              JOB SEEKER DASHBOARD
-            </span>
-          </div>
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-            Let's Get You Hired 🚀
-          </h1>
-          <p className="text-gray-400 mt-2">Follow these steps to land your dream job.</p>
-        </div>
+  const filteredJobs = mockJobs.filter(job => 
+    job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    job.company.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-        {/* --- VERTICAL STACK LAYOUT --- */}
-        <motion.div 
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="flex flex-col gap-6"
-        >
-          
-          {/* CARD 1: RESUME OPTIMIZER (Hero Card) */}
-          <motion.div variants={item} className="group relative overflow-hidden rounded-3xl bg-gray-900 border border-gray-800 hover:border-blue-500/50 transition-all duration-300 shadow-2xl">
-            <div className="absolute top-0 right-0 p-32 bg-blue-600/20 blur-[100px] rounded-full pointer-events-none"></div>
-            
-            <div className="p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-              <div className="flex items-start gap-6">
-                <div className="p-5 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-900/50 group-hover:scale-110 transition duration-300">
-                  <FileText size={32} />
+  return (
+    <div className="js-dashboard-container">
+      {/* Header Section */}
+      <div className="js-header">
+        <h1>Job Seeker Intelligence Center</h1>
+        <p>AI-Powered Tools for your Career Growth</p>
+        
+        <div className="tab-buttons">
+          <button 
+            className={activeTab === 'resume' ? 'active' : ''} 
+            onClick={() => setActiveTab('resume')}
+          >
+            📄 Resume AI Scanner
+          </button>
+          <button 
+            className={activeTab === 'jobs' ? 'active' : ''} 
+            onClick={() => setActiveTab('jobs')}
+          >
+            💼 Smart Job Matcher
+          </button>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="js-content">
+        
+        {/* --- MODULE 1: RESUME OPTIMIZER --- */}
+        {activeTab === 'resume' && (
+          <div className="module-section fade-in">
+            <div className="upload-zone">
+              <div className="upload-icon">📂</div>
+              <h3>Drag & Drop your Resume</h3>
+              <p>Supported formats: PDF, DOCX</p>
+              <input type="file" onChange={handleResumeUpload} id="file-upload" hidden />
+              <label htmlFor="file-upload" className="upload-btn-label">
+                {file ? file.name : "Select File"}
+              </label>
+              
+              {file && !isAnalyzing && !atsScore && (
+                <button className="analyze-btn" onClick={handleAnalyze}>
+                  ✨ Run AI Analysis
+                </button>
+              )}
+            </div>
+
+            {/* Loading Animation */}
+            {isAnalyzing && (
+              <div className="loading-container">
+                <div className="loader"></div>
+                <p>Analyzing ATS Compatibility...</p>
+                <small>Checking keywords, formatting & structure</small>
+              </div>
+            )}
+
+            {/* Results */}
+            {atsScore && (
+              <div className="results-grid">
+                <div className="score-card-glass">
+                  <div className="circular-score" style={{background: `conic-gradient(#00d2ff ${atsScore}%, #e0e0e0 0)`}}>
+                    <span>{atsScore}%</span>
+                  </div>
+                  <h3>Excellent!</h3>
+                  <p>Your resume is highly optimized.</p>
                 </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-white mb-2">1. Optimize Your Resume</h3>
-                  <p className="text-gray-400 max-w-md text-sm leading-relaxed">
-                    Upload your CV and get an instant AI score. We'll tell you exactly which keywords are missing to pass ATS scanners.
-                  </p>
-                  
-                  <div className="mt-4 flex items-center gap-3">
-                    <div className="h-1.5 w-32 bg-gray-800 rounded-full overflow-hidden">
-                      <div className="h-full w-[70%] bg-blue-500 rounded-full"></div>
+
+                <div className="details-card-glass">
+                  <h4>🔍 AI Insights</h4>
+                  <div className="insight-box">
+                    <strong>✅ Strong Keywords:</strong>
+                    <div className="tags">
+                      {analysisResult.keywords.map(k => <span key={k} className="tag green">{k}</span>)}
                     </div>
-                    <span className="text-xs text-blue-400 font-mono">Current Score: 70/100</span>
+                  </div>
+                  <div className="insight-box">
+                    <strong>❌ Missing Skills:</strong>
+                    <div className="tags">
+                      {analysisResult.missing.map(m => <span key={m} className="tag red">{m}</span>)}
+                    </div>
+                  </div>
+                  <div className="insight-box">
+                    <strong>💡 Suggestions:</strong>
+                    <ul>
+                      {analysisResult.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+                    </ul>
                   </div>
                 </div>
               </div>
+            )}
+          </div>
+        )}
 
-              <Link to="/job-seeker/resume" className="px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition flex items-center gap-2 shadow-xl whitespace-nowrap">
-                Start Scan <Sparkles size={18} className="text-blue-600" />
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* CARD 2: SKILL GAP ANALYSIS */}
-          <motion.div variants={item} className="group relative overflow-hidden rounded-3xl bg-gray-900 border border-gray-800 hover:border-purple-500/50 transition-all duration-300 shadow-xl">
-            <div className="p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-start gap-6">
-                <div className="p-4 bg-gray-800 rounded-2xl text-purple-400 border border-gray-700 group-hover:text-white group-hover:bg-purple-600 group-hover:border-purple-500 transition duration-300">
-                  <Target size={28} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-1">2. Identify Skill Gaps</h3>
-                  <p className="text-gray-400 text-sm max-w-sm">
-                    Compare your skills with market demands. Find out what you need to learn next.
-                  </p>
-                </div>
-              </div>
-
-              <Link to="/job-seeker/skills" className="px-6 py-3 bg-gray-800 border border-gray-700 text-white font-semibold rounded-xl hover:bg-gray-700 transition flex items-center gap-2 whitespace-nowrap">
-                Analyze Skills <ArrowRight size={18} />
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* CARD 3: JOB MATCHING */}
-          <motion.div variants={item} className="group relative overflow-hidden rounded-3xl bg-gray-900 border border-gray-800 hover:border-green-500/50 transition-all duration-300 shadow-xl">
-            <div className="p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-start gap-6">
-                <div className="p-4 bg-gray-800 rounded-2xl text-green-400 border border-gray-700 group-hover:text-white group-hover:bg-green-600 group-hover:border-green-500 transition duration-300">
-                  <Search size={28} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-1">3. Find Matches</h3>
-                  <p className="text-gray-400 text-sm max-w-sm">
-                    Browse jobs that perfectly match your optimized profile.
-                  </p>
-                </div>
-              </div>
-
-              <Link to="/student/internships" className="px-6 py-3 bg-gray-800 border border-gray-700 text-white font-semibold rounded-xl hover:bg-gray-700 transition flex items-center gap-2 whitespace-nowrap">
-                Browse Jobs <ArrowRight size={18} />
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Optional: Progress Stats */}
-          <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-2xl flex items-center gap-3">
-              <TrendingUp className="text-green-500" />
-              <div>
-                <p className="text-xs text-gray-500">Profile Views</p>
-                <p className="text-lg font-bold">12 this week</p>
+        {/* --- MODULE 2: JOB MATCHING --- */}
+        {activeTab === 'jobs' && (
+          <div className="module-section fade-in">
+            <div className="search-bar-container">
+              <input 
+                type="text" 
+                placeholder="Search jobs, companies..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              <div className="user-skills-badge">
+                Your Profile: {userSkills.join(', ')}
               </div>
             </div>
-            {/* You can add more stats here */}
-          </motion.div>
 
-        </motion.div>
-
+            <div className="jobs-grid-modern">
+              {filteredJobs.map(job => (
+                <div key={job.id} className="job-card-modern">
+                  <div className="job-header-modern">
+                    <div className="company-logo">{job.logo}</div>
+                    <div className="match-badge">{job.match}% Match</div>
+                  </div>
+                  <h3>{job.title}</h3>
+                  <p className="company-name">{job.company}</p>
+                  <div className="job-meta">
+                    <span className="meta-item">💰 {job.salary}</span>
+                    <span className="meta-item">📍 {job.type}</span>
+                  </div>
+                  <button className="apply-btn-modern">Easy Apply</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
