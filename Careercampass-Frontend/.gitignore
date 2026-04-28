@@ -1,0 +1,10 @@
+# Node modules for frontend
+node_modules/
+
+# Python virtual environment and cache for ML services
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables (Never upload this!)
+.env
