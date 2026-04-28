@@ -8,6 +8,9 @@ const { apiLimiter } = require('./middlewares/securityMiddleware');
 
 const authRoutes = require('./routes/authRoutes');
 
+// --- NEW IMPORT ADDED HERE ---
+const jobSeekerRoutes = require('./routes/jobSeekerRoutes');
+
 const app = express();
 
 // Security Middlewares
@@ -42,6 +45,9 @@ app.get("/", (req, res) => {
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+
+// --- NEW ROUTE ADDED HERE ---
+app.use('/api/jobseeker', jobSeekerRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
