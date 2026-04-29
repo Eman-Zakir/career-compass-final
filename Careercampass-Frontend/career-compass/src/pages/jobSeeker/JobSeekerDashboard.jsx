@@ -13,9 +13,6 @@ const JobSeekerDashboard = () => {
   // --- Job Matching State ---
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Mock Skills (Tumhare dashboard se aayenge)
-  const userSkills = ['React', 'Node.js', 'Python', 'UI/UX'];
-  
   const mockJobs = [
     { id: 1, title: 'Senior Frontend Dev', company: 'Google', type: 'Remote', salary: '$120k', match: 95, logo: 'G' },
     { id: 2, title: 'Backend Engineer', company: 'Microsoft', type: 'On-site', salary: '$110k', match: 88, logo: 'M' },
@@ -23,32 +20,39 @@ const JobSeekerDashboard = () => {
     { id: 4, title: 'React Developer', company: 'TechStart', type: 'Remote', salary: '$80k', match: 85, logo: 'T' },
   ];
 
-  // --- Handlers ---
+  // ============================================
+  // YAHAN PAR TUMHARA FUNCTION HAI
+  // ============================================
   const handleResumeUpload = (e) => {
+    // Jab user file select karega
     if (e.target.files[0]) {
-      setFile(e.target.files[0]);
+      setFile(e.target.files[0]); // File ko state mein save kar do
+      
+      // Agar pehle se koi analysis result tha to use clear kar do
       setAtsScore(null);
       setAnalysisResult(null);
     }
   };
+  // ============================================
+
 
   const handleAnalyze = () => {
     if (!file) return alert("Please select a file first!");
     setIsAnalyzing(true);
     
-    // Simulate AI Processing Delay
+    // Simulate AI Processing
     setTimeout(() => {
       setIsAnalyzing(false);
-      setAtsScore(92); // Mock Score
+      setAtsScore(92); 
       setAnalysisResult({
         keywords: ['Leadership', 'Agile', 'Cloud'],
         missing: ['Docker', 'Kubernetes'],
         suggestions: [
-          "Add more quantifiable achievements (e.g., 'Increased speed by 20%').",
-          "Optimize the summary section with industry-specific keywords."
+          "Add more quantifiable achievements.",
+          "Optimize the summary section with keywords."
         ]
       });
-    }, 3000); // 3 seconds delay
+    }, 3000); 
   };
 
   const filteredJobs = mockJobs.filter(job => 
@@ -58,7 +62,6 @@ const JobSeekerDashboard = () => {
 
   return (
     <div className="js-dashboard-container">
-      {/* Header Section */}
       <div className="js-header">
         <h1>Job Seeker Intelligence Center</h1>
         <p>AI-Powered Tools for your Career Growth</p>
@@ -79,17 +82,17 @@ const JobSeekerDashboard = () => {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="js-content">
-        
-        {/* --- MODULE 1: RESUME OPTIMIZER --- */}
         {activeTab === 'resume' && (
           <div className="module-section fade-in">
             <div className="upload-zone">
               <div className="upload-icon">📂</div>
               <h3>Drag & Drop your Resume</h3>
               <p>Supported formats: PDF, DOCX</p>
+              
+              {/* Niche jo input hai, us par ye function laga hai */}
               <input type="file" onChange={handleResumeUpload} id="file-upload" hidden />
+              
               <label htmlFor="file-upload" className="upload-btn-label">
                 {file ? file.name : "Select File"}
               </label>
@@ -101,7 +104,6 @@ const JobSeekerDashboard = () => {
               )}
             </div>
 
-            {/* Loading Animation */}
             {isAnalyzing && (
               <div className="loading-container">
                 <div className="loader"></div>
@@ -110,7 +112,6 @@ const JobSeekerDashboard = () => {
               </div>
             )}
 
-            {/* Results */}
             {atsScore && (
               <div className="results-grid">
                 <div className="score-card-glass">
@@ -147,7 +148,6 @@ const JobSeekerDashboard = () => {
           </div>
         )}
 
-        {/* --- MODULE 2: JOB MATCHING --- */}
         {activeTab === 'jobs' && (
           <div className="module-section fade-in">
             <div className="search-bar-container">
@@ -159,7 +159,7 @@ const JobSeekerDashboard = () => {
                 className="search-input"
               />
               <div className="user-skills-badge">
-                Your Profile: {userSkills.join(', ')}
+                Your Profile: React, Node.js, Python, UI/UX
               </div>
             </div>
 
